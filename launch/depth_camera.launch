@@ -1,0 +1,8 @@
+<launch>
+    <arg name="pkg_name" default="cubeeye_scube"/>
+
+    <node name="cubeeye_camera" pkg="$(arg pkg_name)" type="cubeeye_scube_node" output="screen">
+        <param name="pkg_name" value="$(arg pkg_name)"/>
+
+    </node>
+</launch>
