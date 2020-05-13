@@ -27,8 +27,6 @@
 #define PUB_PCL "/cubeeye/scube/points"
 
 
-//int m_nWidth;
-//int m_nHeight;
 bool mLoopOk;
 
 ros::Publisher pub_depth_raw;
@@ -238,6 +236,7 @@ public:
 
                 }
                 else if (it->frameDataType() == meere::sensor::CubeEyeData::DataType_32F) {
+
                     auto _sptr_intensity_pointcloud_frame = meere::sensor::frame_cast_intensity_pointcloud32f(it);
                     auto _sptr_frame_dataX = _sptr_intensity_pointcloud_frame->frameDataX();
                     auto _sptr_frame_dataY = _sptr_intensity_pointcloud_frame->frameDataY();
@@ -252,11 +251,15 @@ public:
                             float *pcl_b = pcl_a + 1;
                             float *pcl_c = pcl_b + 1;
 
+                            //points
                             *pcl_a = (*_sptr_frame_dataY)[_frame_index]*-1;
                             *pcl_b = (*_sptr_frame_dataX)[_frame_index]*-1;
                             *pcl_c = (*_sptr_frame_dataZ)[_frame_index];
 
+                            //depth
                             m_pDepthData[_frame_index] = (*_sptr_frame_dataZ)[_frame_index];
+
+                            //amplitude
                             m_pAmplitudeData[_frame_index] = (*_sptr_frame_dataI)[_frame_index];
 
 #if 0
@@ -266,11 +269,8 @@ public:
                                 (*_sptr_frame_dataZ)[_frame_index] * 1000, (*_sptr_frame_dataI)[_frame_index] * 1000);
                             }
 #endif
-                        }
-                    }
-//                    m_PubAmplitudeRaw.publish(m_msgImgPtrAmplitude);
-//                    m_PubDepthRaw.publish(m_msgImgPtrDepth);
-//                    m_PubPCLRaw.publish(m_msgPCL2ptr);
+                        }//for
+                    }//for
 
                     pub_amplitude_raw.publish(m_msgImgPtrAmplitude);
                     pub_depth_raw.publish(m_msgImgPtrDepth);
