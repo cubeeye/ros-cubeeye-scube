@@ -1,0 +1,56 @@
+/*RepeatNum Addrs & Original Values for all modes/fields/seqs:*/
+/*Addr Ori   chan_modex_seqname*/
+40f8  0fa0 /*vx0_mode00_field00_seq01*/
+48ca  0fa0 /*vx1_mode00_field00_seq01*/
+4104  0fa0 /*vx0_mode00_field00_seq03*/
+48f2  0fa0 /*vx1_mode00_field00_seq03*/
+410a  0fa0 /*vx0_mode00_field00_seq05*/
+4906  0fa0 /*vx1_mode00_field00_seq05*/
+4116  0fa0 /*vx0_mode00_field00_seq07*/
+492e  0fa0 /*vx1_mode00_field00_seq07*/
+dummy/*vx0_mode00_field00_seq09*/
+dummy/*vx1_mode00_field00_seq09*/
+411c  0fa0 /*vx0_mode00_field00_seq11*/
+4942  0fa0 /*vx1_mode00_field00_seq11*/
+40b0  0fa0 /*vxsg_mode00_field00_seq15*/
+dummy/*vxsg_mode00_field00_seq18*/
+dummy/*vxsg_mode00_field00_seq23*/
+dummy/*vxsg_mode00_field00_seq26*/
+dummy/*vxsg_mode00_field00_seq29*/
+dummy/*vxsg_mode00_field00_seq32*/
+4198  0fa0 /*vx0_mode01_field00_seq01*/
+49c6  0fa0 /*vx1_mode01_field00_seq01*/
+41a4  0fa0 /*vx0_mode01_field00_seq03*/
+49ee  0fa0 /*vx1_mode01_field00_seq03*/
+41aa  0fa0 /*vx0_mode01_field00_seq05*/
+4a02  0fa0 /*vx1_mode01_field00_seq05*/
+41b6  0fa0 /*vx0_mode01_field00_seq07*/
+4a2a  0fa0 /*vx1_mode01_field00_seq07*/
+dummy/*vx0_mode01_field00_seq09*/
+dummy/*vx1_mode01_field00_seq09*/
+dummy/*vx0_mode01_field00_seq11*/
+dummy/*vx1_mode01_field00_seq11*/
+4150  0fa0 /*vxsg_mode01_field00_seq15*/
+dummy/*vxsg_mode01_field00_seq18*/
+dummy/*vxsg_mode01_field00_seq23*/
+dummy/*vxsg_mode01_field00_seq26*/
+dummy/*vxsg_mode01_field00_seq29*/
+dummy/*vxsg_mode01_field00_seq32*/
+4232  0fa0 /*vx0_mode02_field00_seq02*/
+4aac  0fa0 /*vx1_mode02_field00_seq02*/
+423e  0fa0 /*vx0_mode02_field00_seq05*/
+4ad4  0fa0 /*vx1_mode02_field00_seq05*/
+4244  0fa0 /*vx0_mode02_field00_seq07*/
+4ae8  0fa0 /*vx1_mode02_field00_seq07*/
+4250  0fa0 /*vx0_mode02_field00_seq11*/
+4b10  0fa0 /*vx1_mode02_field00_seq11*/
+dummy/*vx0_mode02_field00_seq14*/
+dummy/*vx1_mode02_field00_seq14*/
+dummy/*vx0_mode02_field00_seq16*/
+dummy/*vx1_mode02_field00_seq16*/
+41ea  0fa0 /*vxsg_mode02_field00_seq21*/
+dummy/*vxsg_mode02_field00_seq25*/
+dummy/*vxsg_mode02_field00_seq29*/
+dummy/*vxsg_mode02_field00_seq34*/
+dummy/*vxsg_mode02_field00_seq38*/
+dummy/*vxsg_mode02_field00_seq41*/

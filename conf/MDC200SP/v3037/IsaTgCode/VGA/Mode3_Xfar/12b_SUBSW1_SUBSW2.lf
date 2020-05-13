@@ -1,0 +1,16 @@
+7CE3	000F	// GPO toggles valid
+7CE5	0003	// GPO execute mode
+7D08 0001 //primary counter max value
+7CA0 0352 // GPO1 toggle0
+7CA1 0000
+7CA2 002A // GPO1 toggle1
+7CA3 0414
+7CA8 0352 // GPO2 toggle 0
+7CA9 0000
+7CAA 0352 // GPO2 toggle 1
+7CAB 0001 //
+7D02 0003 // GPO channel enable, GPO1(SUBSW1), GPO2(SUBSW2)
+7D0D 0001 // primary counter=1
+//7D03 0007 // enable primary, line and pixel counter
+c086 0000
+//C08E 0001

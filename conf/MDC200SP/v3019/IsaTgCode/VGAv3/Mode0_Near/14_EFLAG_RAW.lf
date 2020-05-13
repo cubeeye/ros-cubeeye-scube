@@ -1,0 +1,11 @@
+C49C	0010
+C49E	0004
+
+// RAW SETTINGS
+C800 0001
+C802 0003
+C803 0003  // Raw output
+C809 0001
+C801 000F  // hdvd delay
+C804 0360 // hd_period = 864 - 1 
+

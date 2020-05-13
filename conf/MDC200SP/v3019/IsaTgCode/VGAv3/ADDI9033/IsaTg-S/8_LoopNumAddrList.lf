@@ -1,0 +1,20 @@
+/*LoopNum Addrs & Original Values for all modes/fields/seqs:*/
+/*Addr Ori   chan_modex_seqname*/
+40e0  02aa /*vxsg_mode00_field00_seq51*/
+413a  02aa /*vx0_mode00_field00_seq50*/
+49ce  ff77 /*dummy_link_var_var*//*vx1_mode00_field00_seq50*/
+4186  0286 /*vxsg_mode01_field00_seq51*/
+41e0  0286 /*vx0_mode01_field00_seq50*/
+4ac4  6c75 /*mode01_vx1_link_var_var*//*vx1_mode01_field00_seq50*/
+422c  023e /*vxsg_mode02_field00_seq51*/
+4286  023e /*vx0_mode02_field00_seq50*/
+4bb8  6c75 /*mode02_vx1_link_var_var*//*vx1_mode02_field00_seq50*/
+42d2  021a /*vxsg_mode03_field00_seq51*/
+432c  021a /*vx0_mode03_field00_seq50*/
+4cac  6c75 /*mode03_vx1_link_var_var*//*vx1_mode03_field00_seq50*/
+4378  000a /*vxsg_mode04_field00_seq51*/
+43e4  000a /*vx0_mode04_field00_seq50*/
+4da0  0a40 /*vx1_mode04_field01_seq01*//*vx1_mode04_field00_seq50*/
+dummy/*vxsg_mode04_field01_seq51*/
+dummy/*vx0_mode04_field01_seq50*/
+dummy/*vx1_mode04_field01_seq50*/

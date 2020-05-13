@@ -1,0 +1,65 @@
+C49C	0010
+C49E	0004
+
+C800 0000
+C809 0000
+C802 0001
+C803 0001  // Depth output
+C800 0001
+C801 000F  // hdvd delay
+C804 0360 // hd_period = 864 - 1 	
+									// 0x2013_06C0
+C600 0800 	// vdhd_delay_ps = 0, tof_enable = 0 						// 0x0063_0010
+C601 0121	// a_map_a2_e_ps = 0x121									// 
+C602 0120	// a_map_a2_o_ps = 0x120
+C603 010C	// b_map_a2_e_ps = 0x10c
+C604 0104	// b_map_a2_o_ps = 0x104
+C605 0064	// c_map_a2_e_ps = 0x064
+C606 0024	// c_map_a2_o_ps = 0x024
+C607 0104	// rgb_raw_map_o_ps = 0x104
+C608 0000	// tof_afe1_ol_offset_ps
+C609 0400	// tof_pixel_offset_ps = 1, tof_afe2_ol_offset_ps = 0 
+C60A 0000	// rgb_raw_afe1_ol_offset_ps = 0
+C60B 0000	// rgb_raw_afe1_ol_offset_ps = 0x42
+
+C616	0F80	// DFCT0
+C617	0002	// DFCT1
+C618	0FFF	// DFCT_PIX_TH_TBL0
+C619	0FFF	// DFCT_PIX_TH_TBL1
+C61A	0FFF	// DFCT_PIX_TH_TBL2
+C61B	0FFF	// DFCT_PIX_TH_TBL3
+C61C	0FFF	// DFCT_PIX_TH_TBL4
+C61D	0FFF	// DFCT_PIX_TH_TBL5
+C61E	0FFF	// DFCT_PIX_TH_TBL6
+C61F	0FFF	// DFCT_PIX_TH_TBL7
+C620	0FFF	// DFCT_PIX_TH_TBL8
+C621	0FFF	// DFCT_PIX_TH_TBL9
+C622	0FFF	// DFCT_PIX_TH_TBL10
+C623	0FFF	// DFCT_PIX_TH_TBL11
+
+C624 0360	// hd_period_ps
+C625 01E0 // tof_image_height_ps = 480
+C626 0280	// tof_image_width_ps
+
+//C681 0400	// DEPTH3
+c64a 0000
+
+C6CA 02F1	// tof_raw_height_hdcnt_ps = 761 (750+11)
+C6CC 0002	// tof_raw_start_hdcnt_ps = 0
+C6CE 029C 	// tof_raw_width_pixcnt_ps = 666
+C6CF 0002	// tof_raw_start_pixcnt_ps = 2
+
+//C6CA 02F9	// tof_raw_height_hdcnt_ps = 761 (750+11)
+//C6CC 002F	// tof_raw_start_hdcnt_ps = 0
+//C6CE 029A 	// tof_raw_width_pixcnt_ps = 666
+//C6CF 0002	// tof_raw_start_pixcnt_ps = 2
+
+C6D2 01E0	// tof_raw_roi_height
+C6D3 0000	// tof_raw_roi_hstart
+C6D4 0000	// tof_raw_roi_vstart
+C6D5 0280	//tof_raw_roi_width = 640
+//C6DB 0001
+//C6DE 0005 	// BYPASS register
+C6DE 0000
+C6DF 0000 	// testramp = 
+C600 0801

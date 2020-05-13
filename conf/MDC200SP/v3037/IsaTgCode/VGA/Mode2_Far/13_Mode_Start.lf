@@ -1,0 +1,7 @@
+4001	0007	//Mode Start
+7c22	0010	//Run program
+
+//Output HPT1 BLK from GPO2
+//C02F 000F //Observe signals on GPO pins only 
+//C0F2 1010 //Debug_cfg2
+//C0F1 2000 //Debug_cfg1
