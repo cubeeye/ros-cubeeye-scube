@@ -34,12 +34,15 @@ public:
 	virtual bool _decl_call isArray() const = 0;
 	virtual bool _decl_call isNumeric() const = 0;
 	virtual bool _decl_call isIntegral() const = 0;
-	virtual CubeEyeData::DataType _decl_call dataType() const = 0;
+	virtual DataType _decl_call dataType() const = 0;
 
 protected:
 	CubeEyeData() = default;
 	virtual ~CubeEyeData() = default;
 };
+
+
+using DataType = CubeEyeData::DataType;
 
 END_NAMESPACE
 

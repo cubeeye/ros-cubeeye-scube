@@ -16,7 +16,12 @@
 BEGIN_NAMESPACE
 
 class CubeEyeSink;
-using sptr_sink_list = std::shared_ptr<CubeEyeList<CubeEyeSink*>>;
+class CubeEyeCamera;
+using sink = CubeEyeSink;
+using ptr_sink = CubeEyeSink*;
+using ptr_camera = CubeEyeCamera*;
+using sptr_camera = std::shared_ptr<CubeEyeCamera>;
+using FoV = std::tuple<flt64, flt64>;
 
 class _decl_dll CubeEyeCamera
 {
@@ -26,6 +31,19 @@ public:
 		Prepared,
 		Stopped,
 		Running
+	};
+
+	enum Error {
+		Unknown,
+		IO,	
+		AccessDenied,
+		NoSuchDevice,
+		Busy,		
+		Timeout,	
+		Overflow,	
+		Interrupted,
+		Internal,
+		FrameDropped
 	};
 
 public:
@@ -56,11 +74,25 @@ public:
 		flt64 skewCoefficient;
 	};
 
+	struct ExtrinsicParameters {
+		struct RotationParameters {
+			flt32 r1[3];
+			flt32 r2[3];
+			flt32 r3[3];
+		} rotation;
+
+		struct TranslationParameters {
+			flt32 tx;
+			flt32 ty;
+			flt32 tz;
+		} translation;
+	};
+
 public:
 	class PreparedListener
 	{
 	public:
-		virtual void _decl_call onCubeEyeCameraPrepared(const CubeEyeCamera* camera) = 0;
+		virtual void _decl_call onCubeEyeCameraPrepared(const ptr_camera camera) = 0;
 
 	protected:
 		PreparedListener() = default;
@@ -68,10 +100,15 @@ public:
 	};
 
 public:
-	virtual CubeEyeCamera::State _decl_call state() const = 0;
-	virtual CubeEyeSource* _decl_call source() const = 0;
-	virtual result _decl_call intrinsicParameters(IntrinsicParameters& intrinsic) = 0;
-	virtual result _decl_call distortionCoefficients(DistortionCoefficients& distortion) = 0;
+	virtual State _decl_call state() const = 0;
+	virtual ptr_source _decl_call source() const = 0;
+
+public:
+	virtual size_t _decl_call lenses() const = 0;
+	virtual FoV _decl_call fov(int8u idx = 0) = 0;
+	virtual result _decl_call intrinsicParameters(IntrinsicParameters& intrinsic, int8u idx = 0) = 0;
+	virtual result _decl_call distortionCoefficients(DistortionCoefficients& distortion, int8u idx = 0) = 0;
+	virtual result _decl_call extrinsicParameters(ExtrinsicParameters& extrinsic, int8u idx0 = 0, int8u idx1 = 1) = 0;
 
 public:
 	virtual result _decl_call prepare() = 0;
@@ -85,16 +122,11 @@ public:
 	virtual result_property _decl_call getProperty(const std::string& key) = 0;
 
 public:
-	virtual sptr_sink_list _decl_call sinkList() const = 0;
-	virtual bool _decl_call containsSink(const std::string& sinkName) = 0;
-	virtual result _decl_call addSink(CubeEyeSink* sink) = 0;
-	virtual result _decl_call removeSink(CubeEyeSink* sink) = 0;
+	virtual result _decl_call addSink(ptr_sink sink) = 0;
+	virtual result _decl_call removeSink(ptr_sink sink) = 0;
 	virtual result _decl_call removeSink(const std::string& sinkName) = 0;
 	virtual result _decl_call removeAllSinks() = 0;
-
-public:
-	virtual result _decl_call addPreparedListener(PreparedListener* listener) = 0;
-	virtual result _decl_call removePreparedListener(PreparedListener* listener) = 0;
+	virtual bool _decl_call containsSink(const std::string& sinkName) = 0;
 
 protected:
 	CubeEyeCamera() = default;
@@ -102,15 +134,23 @@ protected:
 };
 
 
-using sptr_camera = std::shared_ptr<CubeEyeCamera>;
+using State = CubeEyeCamera::State;
+using Error = CubeEyeCamera::Error;
+using IntrinsicParameters = CubeEyeCamera::IntrinsicParameters;
+using DistortionCoefficients = CubeEyeCamera::DistortionCoefficients;
+using ExtrinsicParameters = CubeEyeCamera::ExtrinsicParameters;
+using prepared_listener = CubeEyeCamera::PreparedListener;
+using ptr_prepared_listener = CubeEyeCamera::PreparedListener*;
 
-_decl_dll const char* _decl_call last_released_date();
-_decl_dll const char* _decl_call last_released_version();
+_decl_dll std::string _decl_call last_released_date();
+_decl_dll std::string _decl_call last_released_version();
 _decl_dll sptr_camera _decl_call create_camera(const sptr_source& source);
-_decl_dll sptr_camera _decl_call find_camera(const sptr_source& source);
+_decl_dll sptr_camera _decl_call find_camera(const sptr_source source);
 _decl_dll result _decl_call destroy_camera(const sptr_camera& camera);
 _decl_dll result _decl_call set_property(const sptr_property& property);
 _decl_dll result_property _decl_call get_property(const std::string& key);
+_decl_dll result _decl_call add_prepared_listener(ptr_prepared_listener listener);
+_decl_dll result _decl_call remove_prepared_listener(ptr_prepared_listener listener);
 
 END_NAMESPACE
 

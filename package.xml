@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>cubeeye_scube</name>
-  <version>0.0.1</version>
+  <version>1.0.0</version>
   <description>The cubeeye_scube package</description>
 
-  <maintainer email="support@cube-eye.com">CubeEye</maintainer>
-  <maintainer email="ohsh@meerecompany.com">ohsh</maintainer>
+  <maintainer email="support@cube-eye.com">CubeEye</maintainer>  
 
   <license>meerecompany</license>
 

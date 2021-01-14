@@ -8,8 +8,6 @@
 
 #include "CubeEyeSink.h"
 #include "CubeEyeCamera.h"
-#include "CubeEyeBasicFrame.h"
-#include "CubeEyePointCloudFrame.h"
 #include "CubeEyeIntensityPointCloudFrame.h"
 
 #include <sstream>
@@ -18,7 +16,6 @@
 #include <dynamic_reconfigure/server.h>
 #include <cubeeye_scube/cubeeye_scubeConfig.h>
 
-
 #define SCUBE_WIDTH 640
 #define SCUBE_HEIGHT 480
 
@@ -26,6 +23,18 @@
 #define PUB_AMPLITUDE "/cubeeye/scube/amplitude_raw"
 #define PUB_PCL "/cubeeye/scube/points"
 
+enum Config{
+    Config_AmplitudeThreshold   = 1,
+    Config_ScatteringThreshold  = 2,
+    Config_AutoExposuere        = 3,
+    Config_StandbyMode          = 4,
+    Config_Illumination         = 5,
+    Config_MedianFilter         = 6,
+    Config_EdgeFilter           = 7,
+    Config_DepthOffset          = 8,
+    Config_DepthRangeMin        = 9,
+    Config_DepthRangeMax        = 10,
+};
 
 bool mLoopOk;
 
@@ -40,12 +49,20 @@ float* m_pDepthData;
 float* m_pAmplitudeData;
 sensor_msgs::PointCloud2 m_msgPCL2;
 sensor_msgs::PointCloud2Ptr m_msgPCL2ptr;
-meere::sensor::sptr_camera _camera;
+meere::sensor::sptr_camera m_camera;
 
-uint16_t m_nAmplitude;
-uint16_t m_nScattering;
+uint16_t m_nAmplitude_threshold;
+uint16_t m_nScattering_threshold;
+uint8_t m_nStandby_mode;
 
+bool m_bAuto_exposure;
+bool m_billumination;
 
+bool m_bMedian_filter;
+bool m_bEdge_filter;
+short m_nDepth_offset;
+short m_nDepth_range_min;
+short m_nDepth_range_max;
 
 void gracefulShutdown(int sigNum) {
     mLoopOk = false;
@@ -53,117 +70,88 @@ void gracefulShutdown(int sigNum) {
 
 void callbackConfig(cubeeye_scube_node::cubeeye_scubeConfig &config, uint32_t level)
 {
+
+    meere::sensor::sptr_property _prop = nullptr;
     switch (level)
     {
+        std::cout << "callbackConfig : " << level << std::endl;
 
-    case 1:
-        m_nAmplitude = config.Amplitude;
-        {
-            meere::sensor::sptr_property _prop = meere::sensor::make_property_16u("amplitude_threshold_min", m_nAmplitude);
-            if (nullptr != _prop)
-            {
-                // set property
-                if (meere::sensor::result::success != _camera->setProperty(_prop))
-                {
-                    // error
-                    std::cout << "setProperty(" << _prop->key() << ", " << _prop->asInt16u() << ") failed." << std::endl;
-                }
-            }
-        }
+    case Config_AmplitudeThreshold :
+        m_nAmplitude_threshold = config.amplitude_threshold;
+        _prop = meere::sensor::make_property_16u("amplitude_threshold_min", m_nAmplitude_threshold);
         break;
 
-    case 2:
-        m_nScattering = config.Scattering;
-        {
-            meere::sensor::sptr_property _prop = meere::sensor::make_property_16u("scattering_threshold ", m_nScattering);
-            if (nullptr != _prop)
-            {
-                // set property
-                if (meere::sensor::result::success != _camera->setProperty(_prop))
-                {
-                    // error
-                    std::cout << "setProperty(" << _prop->key() << ", " << _prop->asInt16u() << ") failed." << std::endl;
-                }
-            }
-        }
+    case Config_ScatteringThreshold :
+        m_nScattering_threshold = config.scattering_threshold;
+        _prop = meere::sensor::make_property_16u("scattering_threshold", m_nScattering_threshold);
         break;
+    case Config_AutoExposuere :
+        m_bAuto_exposure = config.auto_exposure;
+        _prop = meere::sensor::make_property_bool("auto_exposure", m_bAuto_exposure);
+
+        break;
+    case Config_StandbyMode :
+        m_nStandby_mode = config.standby_mode;
+        _prop = meere::sensor::make_property_bool("standby_mode", m_nStandby_mode);
+        break;
+    case Config_Illumination :
+        m_billumination = config.illumination;
+        _prop = meere::sensor::make_property_bool("illumination", m_billumination);
+        break;
+    case Config_MedianFilter :
+        m_bMedian_filter = config.median_filter;
+        _prop = meere::sensor::make_property_bool("median_filter", m_bMedian_filter);
+        break;
+    case Config_EdgeFilter :
+        m_bEdge_filter = config.edge_filter;
+        _prop = meere::sensor::make_property_bool("edge_filter", m_bEdge_filter);
+        break;
+    case Config_DepthOffset :
+        m_nDepth_offset = config.depth_offset;
+        _prop = meere::sensor::make_property_bool("depth_offset", m_nDepth_offset);
+        break;
+    case Config_DepthRangeMin :
+        m_nDepth_range_min = config.depth_range_min;
+        _prop = meere::sensor::make_property_bool("depth_range_min", m_nDepth_range_min);
+        break;
+    case Config_DepthRangeMax:
+        m_nDepth_range_max = config.depth_range_max;
+        _prop = meere::sensor::make_property_bool("depth_range_max", m_nDepth_range_max);
+        break;
+
+    }//switch
+
+    if (nullptr != _prop)
+    {
+        // set property
+        if (meere::sensor::result::success != m_camera->setProperty(_prop))
+        {
+            // error
+            std::cout << "setProperty(" << _prop->key() << ") failed." << std::endl;
+        }
     }
 }
 
 
-auto printProperty = [](meere::sensor::sptr_property prop) {
-    if (nullptr != prop && !prop->key().empty()) {
-        std::cout << "-> result : " << prop->key();
-        switch (prop->dataType()) {
-        case meere::sensor::CubeEyeData::DataType_Boolean:
-            std::cout << " , " << prop->asBoolean() << std::endl;
-            break;
-        case meere::sensor::CubeEyeData::DataType_8S:
-            std::cout << " , " << prop->asInt8s() << std::endl;
-            break;
-        case meere::sensor::CubeEyeData::DataType_8U:
-            std::cout << " , " << prop->asInt8u() << std::endl;
-            break;
-        case meere::sensor::CubeEyeData::DataType_16S:
-            std::cout << " , " << prop->asInt16s() << std::endl;
-            break;
-        case meere::sensor::CubeEyeData::DataType_16U:
-            std::cout << " , " << prop->asInt16u() << std::endl;
-            break;
-        case meere::sensor::CubeEyeData::DataType_32S:
-            std::cout << " , " << prop->asInt32s() << std::endl;
-            break;
-        case meere::sensor::CubeEyeData::DataType_32U:
-            std::cout << " , " << prop->asInt32u() << std::endl;
-            break;
-        case meere::sensor::CubeEyeData::DataType_32F:
-            std::cout << " , " << prop->asFlt32() << std::endl;
-            break;
-        case meere::sensor::CubeEyeData::DataType_64F:
-            std::cout << " , " << prop->asFlt64() << std::endl;
-            break;
-        case meere::sensor::CubeEyeData::DataType_64S:
-            std::cout << " , " << prop->asInt64s() << std::endl;
-            break;
-        case meere::sensor::CubeEyeData::DataType_64U:
-            std::cout << " , " << prop->asInt64u() << std::endl;
-            break;
-        case meere::sensor::CubeEyeData::DataType_String:
-            std::cout << " , " << prop->asString() << std::endl;
-            break;
-        default:
-            std::cout << std::endl;
-            break;
-        }
-    }
-};
-
-
-
-
-static class TestSink : public meere::sensor::CubeEyeSink
- , public meere::sensor::CubeEyeCamera::PreparedListener
+static class ReceivedIntensityPCLFrameSink : public meere::sensor::sink
+ , public meere::sensor::prepared_listener
 {
 public:
     virtual std::string name() const {
-        return std::string("TestSink");
+        return std::string("ReceivedIntensityPCLFrameSink");
     }
 
-    virtual void onCubeEyeCameraState(const meere::sensor::CubeEyeSource* source, meere::sensor::CubeEyeCamera::State state) {
+    virtual void onCubeEyeCameraState(const meere::sensor::ptr_source source, meere::sensor::State state) {
         printf("%s:%d source(%s) state = %d\n", __FUNCTION__, __LINE__, source->uri().c_str(), state);
-
     }
 
-    virtual void onCubeEyeFrameList(const meere::sensor::CubeEyeSource* source , const meere::sensor::sptr_frame_list& frames) {
-#if 0
-        static int _frame_cnt = 0;
-        if (30 > ++_frame_cnt) {
-            return;
-        }
-        _frame_cnt = 0;
-#endif
+    virtual void onCubeEyeCameraError(const meere::sensor::ptr_source source, meere::sensor::Error error) {
+        printf("%s:%d source(%s) error = %d\n", __FUNCTION__, __LINE__, source->uri().c_str(), error);
+    }
 
+    virtual void onCubeEyeFrameList(const meere::sensor::ptr_source source , const meere::sensor::sptr_frame_list& frames) {
         for (auto it : (*frames)) {
+
 #if 0
             printf("frame : %d, "
                     "frameWidth = %d "
@@ -175,78 +163,33 @@ public:
                     it->frameHeight(),
                     it->frameDataType(),
                     it->timestamp());
-#endif
-            int _frame_index = 0;
+
             auto _center_x = it->frameWidth() / 2;
             auto _center_y = it->frameHeight() / 2;
+#endif
+            int _frame_index = 0;
 
-            if (it->frameType() == meere::sensor::CubeEyeFrame::FrameType_Depth) {
-                if (it->frameDataType() == meere::sensor::CubeEyeData::DataType_16U) {
-                    auto _sptr_basic_frame = meere::sensor::frame_cast_basic16u(it);
-                    auto _sptr_frame_data = _sptr_basic_frame->frameData();
-
-                    for (int y = 0 ; y < _sptr_basic_frame->frameHeight(); y++) {
-                        for (int x = 0 ; x < _sptr_basic_frame->frameWidth(); x++) {
-                            _frame_index = y * _sptr_basic_frame->frameWidth() + x;
-                            if (_center_x == x && _center_y == y) {
-                                printf("depth(%d,%d) data : %d\n", _center_x, _center_y, (*_sptr_frame_data)[_frame_index]);
-                            }
-                        }
-                    }
-                }
-            }
-            else if (it->frameType() == meere::sensor::CubeEyeFrame::FrameType_Amplitude) {
-                if (it->frameDataType() == meere::sensor::CubeEyeData::DataType_16U) {
-                    auto _sptr_basic_frame = meere::sensor::frame_cast_basic16u(it);
-                    auto _sptr_frame_data = _sptr_basic_frame->frameData();
-
-                    for (int y = 0 ; y < _sptr_basic_frame->frameHeight(); y++) {
-                        for (int x = 0 ; x < _sptr_basic_frame->frameWidth(); x++) {
-                            _frame_index = y * _sptr_basic_frame->frameWidth() + x;
-                            if (_center_x == x && _center_y == y) {
-                                printf("amplitude(%d,%d) data : %d\n", _center_x, _center_y, (*_sptr_frame_data)[_frame_index]);
-                            }
-                        }
-                    }
-                }
-            }
-            else if (it->frameType() == meere::sensor::CubeEyeFrame::FrameType_PointCloud) {
-                if (it->frameDataType() == meere::sensor::CubeEyeData::DataType_16U) {
-
-                }
-                else if (it->frameDataType() == meere::sensor::CubeEyeData::DataType_32F) {
-                    auto _sptr_pointcloud_frame = meere::sensor::frame_cast_pointcloud32f(it);
-                    auto _sptr_frame_dataX = _sptr_pointcloud_frame->frameDataX();
-                    auto _sptr_frame_dataY = _sptr_pointcloud_frame->frameDataY();
-                    auto _sptr_frame_dataZ = _sptr_pointcloud_frame->frameDataZ();
-
-                    for (int y = 0 ; y < _sptr_pointcloud_frame->frameHeight(); y++) {
-                        for (int x = 0 ; x < _sptr_pointcloud_frame->frameWidth(); x++) {
-                            _frame_index = y * _sptr_pointcloud_frame->frameWidth() + x;
-                            if (_center_x == x && _center_y == y) {
-                                printf("point-cloud(%d,%d) data : %f, %f, %f\n", _center_x, _center_y, \
-                                (*_sptr_frame_dataX)[_frame_index] * 1000, (*_sptr_frame_dataY)[_frame_index] * 1000, (*_sptr_frame_dataZ)[_frame_index] * 1000);
-                            }
-                        }
-                    }
-                }
-            }
-            else if (it->frameType() == meere::sensor::CubeEyeFrame::FrameType_IntensityPointCloud) {
-                if (it->frameDataType() == meere::sensor::CubeEyeData::DataType_16U) {
-
-                }
-                else if (it->frameDataType() == meere::sensor::CubeEyeData::DataType_32F) {
-
-                    auto _sptr_intensity_pointcloud_frame = meere::sensor::frame_cast_intensity_pointcloud32f(it);
-                    auto _sptr_frame_dataX = _sptr_intensity_pointcloud_frame->frameDataX();
-                    auto _sptr_frame_dataY = _sptr_intensity_pointcloud_frame->frameDataY();
-                    auto _sptr_frame_dataZ = _sptr_intensity_pointcloud_frame->frameDataZ();
-                    auto _sptr_frame_dataI = _sptr_intensity_pointcloud_frame->frameDataI();
+            // intensity-PointCloud frame
+            if (it->frameType() == meere::sensor::CubeEyeFrame::FrameType_IntensityPointCloud) {
+                // 32bits floating-point
+                if (it->frameDataType() == meere::sensor::CubeEyeData::DataType_32F) {
+                    // casting 32bits intensity point cloud frame
+                    auto _sptr_intensity_pointcloud_frame = meere::sensor::frame_cast_ipcl32f(it);
+                    auto _sptr_frame_dataX = _sptr_intensity_pointcloud_frame->frameDataX(); // x-point data array
+                    auto _sptr_frame_dataY = _sptr_intensity_pointcloud_frame->frameDataY(); // y-point data array
+                    auto _sptr_frame_dataZ = _sptr_intensity_pointcloud_frame->frameDataZ(); // z-point data array
+                    auto _sptr_frame_dataI = _sptr_intensity_pointcloud_frame->frameDataI(); // intensity data array
 
                     for (int y = 0 ; y < _sptr_intensity_pointcloud_frame->frameHeight(); y++) {
                         for (int x = 0 ; x < _sptr_intensity_pointcloud_frame->frameWidth(); x++) {
                             _frame_index = y * _sptr_intensity_pointcloud_frame->frameWidth() + x;
-
+#if 0
+                            if (_center_x == x && _center_y == y) {
+                                printf("intensity-PCL(%d,%d) data : %f, %f, %f, %f\n", _center_x, _center_y, \
+                                (*_sptr_frame_dataX)[_frame_index] * 1000, (*_sptr_frame_dataY)[_frame_index] * 1000, \
+                                (*_sptr_frame_dataZ)[_frame_index] * 1000, (*_sptr_frame_dataI)[_frame_index] * 1000);
+                            }
+#endif
                             float *pcl_a = (float *)&m_msgPCL2ptr->data[_frame_index * m_msgPCL2ptr->point_step];
                             float *pcl_b = pcl_a + 1;
                             float *pcl_c = pcl_b + 1;
@@ -259,19 +202,10 @@ public:
                             //depth
                             m_pDepthData[_frame_index] = (*_sptr_frame_dataZ)[_frame_index];
 
-                            //amplitude
+                            //intensity
                             m_pAmplitudeData[_frame_index] = (*_sptr_frame_dataI)[_frame_index];
-
-#if 0
-                            if (_center_x == x && _center_y == y) {
-                                printf("point-cloud(%d,%d) data : %f, %f, %f, %f\n", _center_x, _center_y, \
-                                (*_sptr_frame_dataX)[_frame_index] * 1000, (*_sptr_frame_dataY)[_frame_index] * 1000, \
-                                (*_sptr_frame_dataZ)[_frame_index] * 1000, (*_sptr_frame_dataI)[_frame_index] * 1000);
-                            }
-#endif
-                        }//for
-                    }//for
-
+                        }
+                    }
                     pub_amplitude_raw.publish(m_msgImgPtrAmplitude);
                     pub_depth_raw.publish(m_msgImgPtrDepth);
                     pub_pcl_raw.publish(m_msgPCL2ptr);
@@ -281,14 +215,15 @@ public:
     }
 
 public:
-    virtual void onCubeEyeCameraPrepared(const meere::sensor::CubeEyeCamera* camera) {
+    virtual void onCubeEyeCameraPrepared(const meere::sensor::ptr_camera camera) {
         printf("%s:%d source(%s)\n", __FUNCTION__, __LINE__, camera->source()->uri().c_str());
     }
 
 public:
-    TestSink() = default;
-    virtual ~TestSink() = default;
-} _test_sink;
+    ReceivedIntensityPCLFrameSink() = default;
+    virtual ~ReceivedIntensityPCLFrameSink() = default;
+} _ReceivedIntensityPCLFrameSink;
+
 
 void init_ros(ros::NodeHandle handle)
 {
@@ -380,114 +315,47 @@ bool connect()
         return -1;
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));//sleep delay
+//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));//sleep delay
+
+    meere::sensor::add_prepared_listener(&_ReceivedIntensityPCLFrameSink);
+
 
     // create camera
 //    meere::sensor::sptr_camera _camera = meere::sensor::create_camera(_source_list->at(_selected_source));
-    _camera = meere::sensor::create_camera(_source_list->at(_selected_source));
-    if (nullptr != _camera) {
-#if 1
-        _camera->addSink(&_test_sink);
-        _camera->addPreparedListener(&_test_sink);
-#endif
+//    _camera = meere::sensor::create_camera(_source_list->at(_selected_source));
+    m_camera = meere::sensor::create_camera(_source_list->at(_selected_source));
+    if (nullptr != m_camera) {
+        m_camera->addSink(&_ReceivedIntensityPCLFrameSink);
 
         meere::sensor::result _rt;
-        _rt = _camera->prepare();
+        _rt = m_camera->prepare();
         assert(meere::sensor::result::success == _rt);
         if (meere::sensor::result::success != _rt) {
             std::cout << "_camera->prepare() failed." << std::endl;
-            meere::sensor::destroy_camera(_camera);
+            meere::sensor::destroy_camera(m_camera);
             return -1;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));//sleep delay
-
         // set wanted frame type
-//		int _wantedFrame = meere::sensor::CubeEyeFrame::FrameType_Depth;				// raw depth only
-//		int _wantedFrame = meere::sensor::CubeEyeFrame::FrameType_Depth | meere::sensor::CubeEyeFrame::FrameType_Amplitude;	// raw depth & amplitude
-//		int _wantedFrame = meere::sensor::CubeEyeFrame::FrameType_PointCloud;			// 3D(depth) & Point(x, y)
         int _wantedFrame = meere::sensor::CubeEyeFrame::FrameType_IntensityPointCloud;	// intensity(amplitude) & 3D(depth) & Point(x, y)
 
 
-        _rt = _camera->run(_wantedFrame);
+        _rt = m_camera->run(_wantedFrame);
         assert(meere::sensor::result::success == _rt);
         if (meere::sensor::result::success != _rt) {
             std::cout << "_camera->run() failed." << std::endl;
-            meere::sensor::destroy_camera(_camera);
+            meere::sensor::destroy_camera(m_camera);
             return -1;
         }
-
-#if 0
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));//sleep delay
-
-        // set/get property : amplitude_threshold_min
-        {
-            meere::sensor::sptr_property _prop = meere::sensor::make_property_16u("amplitude_threshold_min", 100);
-            if (nullptr != _prop) {
-                // set property
-                if (meere::sensor::result::success != _camera->setProperty(_prop)) {
-                    // error
-                    std::cout << "setProperty(" << _prop->key() << ", " << _prop->asInt16u() << ") failed." << std::endl;
-                }
-
-                // get property
-                auto _rt_prop = _camera->getProperty(_prop->key());
-                if (meere::sensor::result::success == std::get<0>(_rt_prop)) {
-                    printProperty(std::get<1>(_rt_prop));
-                }
-                else {
-                    std::cout << "getProperty(" << _prop->key() << ") failed." << std::endl;
-                }
-            }
-
-            // set default 0
-            {
-                meere::sensor::sptr_property _prop = meere::sensor::make_property_16u("amplitude_threshold_min", 0);
-                if (nullptr != _prop) {
-                    _camera->setProperty(_prop);
-                }
-            }
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));//sleep delay
-        // set/get property : edge_filter
-        {
-            meere::sensor::sptr_property _prop = meere::sensor::make_property_string("edge_filter", "on");
-            if (nullptr != _prop) {
-                // set property
-                if (meere::sensor::result::success != _camera->setProperty(_prop)) {
-                    // error
-                    std::cout << "setProperty(" << _prop->key() << ", " << _prop->asString() << ") failed." << std::endl;
-                }
-
-                // get property
-                auto _rt_prop = _camera->getProperty(_prop->key());
-                if (meere::sensor::result::success == std::get<0>(_rt_prop)) {
-                    printProperty(std::get<1>(_rt_prop));
-                }
-                else {
-                    std::cout << "getProperty(" << _prop->key() << ") failed." << std::endl;
-                }
-            }
-
-            // set default : off
-            {
-                meere::sensor::sptr_property _prop = meere::sensor::make_property_string("edge_filter", "off");
-                if (nullptr != _prop) {
-                    _camera->setProperty(_prop);
-                }
-            }
-        }
-#endif
     }
     return true;
 }
 
 bool close()
 {
-    _camera->stop();    
-    _camera->release();    
-    meere::sensor::destroy_camera(_camera);    
+    m_camera->stop();
+    m_camera->release();
+    meere::sensor::destroy_camera(m_camera);
     return true;
 }
 
@@ -511,7 +379,7 @@ int main(int argc, char **argv)
     ros::Rate loop_rate(10);
 
     if(!connect()) {
-        ROS_ERROR( "Depth Camera Connection Failed!...");
+        ROS_ERROR( "cubeeye connection failed!...");
         std::exit(1);
     }
 
@@ -519,7 +387,7 @@ int main(int argc, char **argv)
     //It must be removed at Release version.
     signal(SIGINT, gracefulShutdown);
 
-    ROS_INFO("Depth Camera Start\n");
+    ROS_INFO("cubeeye scube start\n");
 
     while(mLoopOk)
     {
@@ -528,6 +396,6 @@ int main(int argc, char **argv)
     }    
 
     close();
-    ROS_INFO("Depth Camera Stop\n");
+    ROS_INFO("cubeeye scube stop\n");
     return 0;
 }

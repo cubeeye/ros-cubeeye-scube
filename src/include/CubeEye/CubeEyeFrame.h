@@ -22,13 +22,15 @@ public:
 		FrameType_Amplitude				= 0x004,
 		FrameType_PointCloud			= 0x008,
 		FrameType_IntensityPointCloud	= 0x010,
+		FrameType_RGB					= 0x020,
 	};
 
 public:
 	virtual int32s _decl_call frameWidth() const = 0;
 	virtual int32s _decl_call frameHeight() const = 0;
-	virtual CubeEyeFrame::FrameType _decl_call frameType() const = 0;
-	virtual CubeEyeData::DataType _decl_call frameDataType() const = 0;
+	virtual FrameType _decl_call frameType() const = 0;
+	virtual DataType _decl_call frameDataType() const = 0;
+	virtual std::string _decl_call frameFormat() const = 0;
 	virtual int64u _decl_call timestamp() const = 0;
 
 protected:
@@ -36,8 +38,9 @@ protected:
 	virtual ~CubeEyeFrame() = default;
 };
 
+
+using FrameType = CubeEyeFrame::FrameType;
 using sptr_frame = std::shared_ptr<CubeEyeFrame>;
-using result_frame = std::tuple<result, sptr_frame>;
 
 END_NAMESPACE
 

@@ -16,17 +16,17 @@
 #define BEGIN_NAMESPACE		namespace meere { namespace sensor {
 #define END_NAMESPACE		} /*namespace sensor*/ 	} /*namespace meere*/
 
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
 #ifdef _BUILD_FOR_DLL_EXPORT
 #define _decl_dll	__declspec(dllexport)
 #else //_BUILD_FOR_DLL_EXPORT
 #define _decl_dll	__declspec(dllimport)
 #endif //!_BUILD_FOR_DLL_EXPORT
 #define _decl_call	__stdcall
-#else //_WIN32
+#else //!defined(_WIN32) && !defined(_WIN64)
 #define _decl_dll
 #define _decl_call
-#endif //!_WIN32
+#endif //defined(_WIN32) || defined(_WIN64)
 
 BEGIN_NAMESPACE
 
@@ -53,11 +53,12 @@ typedef enum result
 	not_supported,
 	not_implemented,
 	not_initialized,
-	no_search_device,
+	no_such_device,
 	invalid_parameter,
 	invalid_operation,
 	out_of_memory,
 	out_of_resource,
+	out_of_range,
 	already_exists,
 	already_opened,
 	already_running,

@@ -12,6 +12,11 @@
 
 BEGIN_NAMESPACE
 
+class CubeEyeSource;
+using ptr_source = CubeEyeSource*;
+using sptr_source = std::shared_ptr<CubeEyeSource>;
+using sptr_source_list = std::shared_ptr<CubeEyeList<sptr_source>>;
+
 class _decl_dll CubeEyeSource
 {
 public:
@@ -20,33 +25,31 @@ public:
 	virtual std::string _decl_call uri() const = 0;
 
 public:
+	class Listener
+	{
+	public:
+		virtual void _decl_call onAttachedCubeEyeSource(const ptr_source source) = 0;
+		virtual void _decl_call onDetachedCubeEyeSource(const ptr_source source) = 0;
+
+	protected:
+		Listener() = default;
+		virtual ~Listener() = default;
+	};
+
+public:
 	CubeEyeSource() = default;
 	virtual ~CubeEyeSource() = default;
 };
 
 
-class _decl_dll CubeEyeSourceListener
-{
-public:
-	virtual void _decl_call onAttachedCubeEyeSource(const CubeEyeSource* source) = 0;
-	virtual void _decl_call onDetachedCubeEyeSource(const CubeEyeSource* source) = 0;
-
-protected:
-	CubeEyeSourceListener() = default;
-	virtual ~CubeEyeSourceListener() = default;
-};
-
-
-using sptr_source = std::shared_ptr<CubeEyeSource>;
-using sptr_source_list = std::shared_ptr<CubeEyeList<sptr_source>>;
-using result_source = std::tuple<result, sptr_source>;
+using source_listener = CubeEyeSource::Listener;
+using ptr_source_listener = CubeEyeSource::Listener*;
 
 _decl_dll sptr_source_list _decl_call search_camera_source();
-_decl_dll result_source _decl_call make_camera_source(const char* scheme, \
-		int vid, int pid, int bus, int addr, int fd, const char* path, const char* serialNumber);
-_decl_dll result _decl_call add_source_listener(CubeEyeSourceListener* listener);
-_decl_dll result _decl_call remove_source_listener(CubeEyeSourceListener* listener);
-
+_decl_dll result _decl_call add_external_source(const std::string& uri);
+_decl_dll result _decl_call remove_external_source(const std::string& uri);
+_decl_dll result _decl_call add_source_listener(ptr_source_listener listener);
+_decl_dll result _decl_call remove_source_listener(ptr_source_listener listener);
 
 END_NAMESPACE
 

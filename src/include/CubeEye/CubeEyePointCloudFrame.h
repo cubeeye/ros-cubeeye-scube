@@ -26,13 +26,13 @@ protected:
 };
 
 
-using sptr_frame_pointcloud16u = std::shared_ptr<CubeEyePointCloudFrame<int16u>>;
-using sptr_frame_pointcloud32f = std::shared_ptr<CubeEyePointCloudFrame<flt32>>;
-using sptr_frame_pointcloud64f = std::shared_ptr<CubeEyePointCloudFrame<flt64>>;
+using sptr_frame_pcl16u = std::shared_ptr<CubeEyePointCloudFrame<int16u>>;
+using sptr_frame_pcl32f = std::shared_ptr<CubeEyePointCloudFrame<flt32>>;
+using sptr_frame_pcl64f = std::shared_ptr<CubeEyePointCloudFrame<flt64>>;
 
-_decl_dll sptr_frame_pointcloud16u _decl_call frame_cast_pointcloud16u(const sptr_frame& frame);
-_decl_dll sptr_frame_pointcloud32f _decl_call frame_cast_pointcloud32f(const sptr_frame& frame);
-_decl_dll sptr_frame_pointcloud64f _decl_call frame_cast_pointcloud64f(const sptr_frame& frame);
+_decl_dll sptr_frame_pcl16u _decl_call frame_cast_pcl16u(const sptr_frame& frame);
+_decl_dll sptr_frame_pcl32f _decl_call frame_cast_pcl32f(const sptr_frame& frame);
+_decl_dll sptr_frame_pcl64f _decl_call frame_cast_pcl64f(const sptr_frame& frame);
 
 END_NAMESPACE
 

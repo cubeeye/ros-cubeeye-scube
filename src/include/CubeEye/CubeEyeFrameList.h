@@ -21,7 +21,8 @@ protected:
 
 
 using sptr_frame_list = std::shared_ptr<CubeEyeFrameList>;
-using result_frame_list = std::tuple<result, sptr_frame_list>;
+
+_decl_dll sptr_frame _decl_call find_frame(const sptr_frame_list& frameList, CubeEyeFrame::FrameType frameType);
 
 END_NAMESPACE
 
