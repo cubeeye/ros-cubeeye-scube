@@ -29,9 +29,11 @@ public:
 	virtual auto _decl_call asInt64u(const int64u& defaultValue = 0) const -> int64u = 0;
 	virtual auto _decl_call asFlt32(const flt32& defaultValue = 0) const -> flt32 = 0;
 	virtual auto _decl_call asFlt64(const flt64& defaultValue = 0) const -> flt64 = 0;
+	virtual auto _decl_call asBytes(const bytes& defaultValue = bytes()) const -> bytes = 0;
 	virtual auto _decl_call asString(const std::string& defaultValue = "") const -> std::string = 0;
 
 public:
+	virtual CubeEyeProperty& _decl_call operator=(CubeEyeProperty&& other) = 0;
 	virtual CubeEyeProperty& _decl_call operator=(const CubeEyeProperty& other) = 0;
 
 protected:
@@ -54,7 +56,10 @@ _decl_dll sptr_property _decl_call make_property_32f(const std::string& key, con
 _decl_dll sptr_property _decl_call make_property_64s(const std::string& key, const int64s& data);
 _decl_dll sptr_property _decl_call make_property_64u(const std::string& key, const int64u& data);
 _decl_dll sptr_property _decl_call make_property_64f(const std::string& key, const flt64& data);
+_decl_dll sptr_property _decl_call make_property_bytes(const std::string& key, const bytes& data);
+_decl_dll sptr_property _decl_call make_property_bytes(const std::string& key, bytes&& data);
 _decl_dll sptr_property _decl_call make_property_string(const std::string& key, const std::string& data);
+_decl_dll sptr_property _decl_call make_property_string(const std::string& key, std::string&& data);
 
 END_NAMESPACE
 

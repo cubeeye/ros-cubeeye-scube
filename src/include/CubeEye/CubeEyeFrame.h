@@ -9,6 +9,7 @@
 #define CUBEEYEFRAME_H_
 
 #include "CubeEyeData.h"
+#include "CubeEyeProperty.h"
 
 BEGIN_NAMESPACE
 
@@ -32,6 +33,10 @@ public:
 	virtual DataType _decl_call frameDataType() const = 0;
 	virtual std::string _decl_call frameFormat() const = 0;
 	virtual int64u _decl_call timestamp() const = 0;
+
+public:
+	virtual result _decl_call setProperty(const sptr_property& property) = 0;
+	virtual result_property _decl_call getProperty(const std::string& key) = 0;
 
 protected:
 	CubeEyeFrame() = default;

@@ -9,6 +9,7 @@
 #define CUBEEYE_H_
 
 #include <tuple>
+#include <vector>
 #include <string>
 #include <memory>
 #include <iterator>
@@ -30,16 +31,18 @@
 
 BEGIN_NAMESPACE
 
-typedef int8_t		int8s;
-typedef uint8_t		int8u;
-typedef int16_t		int16s;
-typedef uint16_t	int16u;
-typedef int32_t		int32s;
-typedef uint32_t	int32u;
-typedef int64_t		int64s;
-typedef uint64_t	int64u;
-typedef float		flt32;
-typedef double		flt64;
+using flt32 = float;
+using flt64 = double;
+using int8s = int8_t;
+using int8u = uint8_t;
+using int16s = int16_t;
+using int16u = uint16_t;
+using int32s = int32_t;
+using int32u = uint32_t;
+using int64s = int64_t;
+using int64u = uint64_t;
+using bytes = std::vector<int8u>;
+
 
 typedef enum result
 {
@@ -56,6 +59,7 @@ typedef enum result
 	no_such_device,
 	invalid_parameter,
 	invalid_operation,
+	invalid_data_type,
 	out_of_memory,
 	out_of_resource,
 	out_of_range,

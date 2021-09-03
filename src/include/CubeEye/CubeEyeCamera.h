@@ -10,7 +10,7 @@
 
 #include "CubeEyeSource.h"
 #include "CubeEyeFrame.h"
-#include "CubeEyeProperty.h"
+#include "CubeEyeProperties.h"
 
 
 BEGIN_NAMESPACE
@@ -43,7 +43,8 @@ public:
 		Overflow,	
 		Interrupted,
 		Internal,
-		FrameDropped
+		FrameDropped,
+		IlluminationLock
 	};
 
 public:
@@ -119,7 +120,9 @@ public:
 
 public:
 	virtual result _decl_call setProperty(const sptr_property& property) = 0;
+	virtual result _decl_call setProperties(const sptr_properties& properties) = 0;
 	virtual result_property _decl_call getProperty(const std::string& key) = 0;
+	virtual result_properties _decl_call getProperties(const std::string& name) = 0;
 
 public:
 	virtual result _decl_call addSink(ptr_sink sink) = 0;

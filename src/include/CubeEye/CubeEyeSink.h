@@ -26,6 +26,9 @@ protected:
 	virtual ~CubeEyeSink() = default;
 };
 
+using ptr_sink = CubeEyeSink*;
+using sptr_sink = std::shared_ptr<CubeEyeSink>;
+
 END_NAMESPACE
 
 #endif /* CUBEEYESINK_H_ */

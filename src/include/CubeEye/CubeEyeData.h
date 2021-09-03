@@ -16,6 +16,7 @@ class _decl_dll CubeEyeData
 {
 public:
 	enum DataType {
+		DataType_Unknown,
 		DataType_Boolean,
 		DataType_8S,
 		DataType_8U,
@@ -27,6 +28,7 @@ public:
 		DataType_64S,
 		DataType_64U,
 		DataType_64F,
+		DataType_Bytes,
 		DataType_String
 	};
 

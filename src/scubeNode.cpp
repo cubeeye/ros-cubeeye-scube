@@ -24,16 +24,21 @@
 #define PUB_PCL "/cubeeye/scube/points"
 
 enum Config{
-    Config_AmplitudeThreshold   = 1,
-    Config_ScatteringThreshold  = 2,
-    Config_AutoExposuere        = 3,
-    Config_StandbyMode          = 4,
-    Config_Illumination         = 5,
-    Config_MedianFilter         = 6,
-    Config_EdgeFilter           = 7,
-    Config_DepthOffset          = 8,
-    Config_DepthRangeMin        = 9,
-    Config_DepthRangeMax        = 10,
+    Config_AmplitudeThreshold               = 1,
+    Config_ScatteringThreshold              = 2,
+    Config_AutoExposuere                    = 3,
+    Config_IntegrationTime                  = 4,
+    Config_StandbyMode                      = 5,
+    Config_Illumination                     = 6,
+    Config_FlyingPixelRemoveFilter          = 7,
+    Config_NoiseFilter1                     = 8,
+    Config_NoiseFilter2                     = 9,
+    Config_NoiseFilter3                     = 10,
+    Config_CornerMask                       = 11,
+    Config_DepthOffset                      = 12,
+    Config_DepthRangeMin                    = 13,
+    Config_DepthRangeMax                    = 14,
+    Config_DepthErrorRemoveThreshold        = 15,
 };
 
 bool mLoopOk;
@@ -56,13 +61,19 @@ uint16_t m_nScattering_threshold;
 uint8_t m_nStandby_mode;
 
 bool m_bAuto_exposure;
+uint8_t m_nIntegration_time;
 bool m_billumination;
 
-bool m_bMedian_filter;
-bool m_bEdge_filter;
+bool m_bFlying_pixel_remove_filter;
+bool m_bNoise_filter1;
+bool m_bNoise_filter2;
+bool m_bNoise_filter3;
+bool m_bCorner_mask;
+
 short m_nDepth_offset;
 short m_nDepth_range_min;
 short m_nDepth_range_max;
+uint8_t m_nDepth_error_remove_threshold;
 
 void gracefulShutdown(int sigNum) {
     mLoopOk = false;
@@ -80,7 +91,6 @@ void callbackConfig(cubeeye_scube_node::cubeeye_scubeConfig &config, uint32_t le
         m_nAmplitude_threshold = config.amplitude_threshold;
         _prop = meere::sensor::make_property_16u("amplitude_threshold_min", m_nAmplitude_threshold);
         break;
-
     case Config_ScatteringThreshold :
         m_nScattering_threshold = config.scattering_threshold;
         _prop = meere::sensor::make_property_16u("scattering_threshold", m_nScattering_threshold);
@@ -88,7 +98,10 @@ void callbackConfig(cubeeye_scube_node::cubeeye_scubeConfig &config, uint32_t le
     case Config_AutoExposuere :
         m_bAuto_exposure = config.auto_exposure;
         _prop = meere::sensor::make_property_bool("auto_exposure", m_bAuto_exposure);
-
+        break;
+    case Config_IntegrationTime :
+        m_nIntegration_time = config.integration_time;
+        _prop = meere::sensor::make_property_8u("integration_time", m_nIntegration_time);
         break;
     case Config_StandbyMode :
         m_nStandby_mode = config.standby_mode;
@@ -98,13 +111,25 @@ void callbackConfig(cubeeye_scube_node::cubeeye_scubeConfig &config, uint32_t le
         m_billumination = config.illumination;
         _prop = meere::sensor::make_property_bool("illumination", m_billumination);
         break;
-    case Config_MedianFilter :
-        m_bMedian_filter = config.median_filter;
-        _prop = meere::sensor::make_property_bool("median_filter", m_bMedian_filter);
+    case Config_FlyingPixelRemoveFilter :
+        m_bFlying_pixel_remove_filter = config.flying_pixel_remove_filter;
+        _prop = meere::sensor::make_property_bool("flying_pixel_remove_filter", m_bFlying_pixel_remove_filter);
         break;
-    case Config_EdgeFilter :
-        m_bEdge_filter = config.edge_filter;
-        _prop = meere::sensor::make_property_bool("edge_filter", m_bEdge_filter);
+    case Config_NoiseFilter1 :
+        m_bNoise_filter1 = config.noise_filter1;
+        _prop = meere::sensor::make_property_bool("noise_filter1", m_bNoise_filter1);
+        break;
+    case Config_NoiseFilter2 :
+        m_bNoise_filter2 = config.noise_filter2;
+        _prop = meere::sensor::make_property_bool("noise_filter2", m_bNoise_filter2);
+        break;
+    case Config_NoiseFilter3 :
+        m_bNoise_filter3 = config.noise_filter3;
+        _prop = meere::sensor::make_property_bool("noise_filter3", m_bNoise_filter3);
+        break;
+    case Config_CornerMask :
+        m_bCorner_mask = config.corner_mask;
+        _prop = meere::sensor::make_property_bool("corner_mask", m_bCorner_mask);
         break;
     case Config_DepthOffset :
         m_nDepth_offset = config.depth_offset;
@@ -114,11 +139,14 @@ void callbackConfig(cubeeye_scube_node::cubeeye_scubeConfig &config, uint32_t le
         m_nDepth_range_min = config.depth_range_min;
         _prop = meere::sensor::make_property_bool("depth_range_min", m_nDepth_range_min);
         break;
-    case Config_DepthRangeMax:
+    case Config_DepthRangeMax :
         m_nDepth_range_max = config.depth_range_max;
         _prop = meere::sensor::make_property_bool("depth_range_max", m_nDepth_range_max);
         break;
-
+    case Config_DepthErrorRemoveThreshold :
+        m_nDepth_error_remove_threshold = config.depth_error_remove_threshold;
+        _prop = meere::sensor::make_property_8u("depth_error_remove_threshold", m_nDepth_error_remove_threshold);
+        break;
     }//switch
 
     if (nullptr != _prop)

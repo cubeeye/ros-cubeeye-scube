@@ -46,7 +46,7 @@ using source_listener = CubeEyeSource::Listener;
 using ptr_source_listener = CubeEyeSource::Listener*;
 
 _decl_dll sptr_source_list _decl_call search_camera_source();
-_decl_dll result _decl_call add_external_source(const std::string& uri);
+_decl_dll result _decl_call add_external_source(const std::string& uri, void* param = nullptr);
 _decl_dll result _decl_call remove_external_source(const std::string& uri);
 _decl_dll result _decl_call add_source_listener(ptr_source_listener listener);
 _decl_dll result _decl_call remove_source_listener(ptr_source_listener listener);
