@@ -1,4 +1,4 @@
-# CUBE EYE camera ROS driver(S100D / S110D device)
+# CUBE EYE camera ROS driver (S100D / S110D device)
 These are packages for using S100D / S110D device with ROS
 - #### S100D / S110D
 
@@ -63,5 +63,4 @@ PointCloud2 : /cubeeye/scube/points
 ```bash
 $rosrun rqt_reconfigure rqt_reconfigure
 ```
-
-<p align="center"><img width=100% src="https://user-images.githubusercontent.com/18589471/104545943-21f73980-55f9-11eb-9f58-08bd199008a7.png"/></p>
+![dynamic_reconfigure](https://user-images.githubusercontent.com/18589471/131957404-7ea2305c-ea7e-477e-9bc3-15c1746ddb03.png)
