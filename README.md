@@ -1,6 +1,6 @@
-# CUBE EYE camera ROS driver(S100D device)
-These are packages for using S100D device with ROS
-- #### S100D
+# CUBE EYE camera ROS driver(S100D / S110D device)
+These are packages for using S100D / S110D device with ROS
+- #### S100D / S110D
 
 Please refer to our website for detailed product specifications. [http://www.cube-eye.co.kr](http://www.cube-eye.co.kr)
 
