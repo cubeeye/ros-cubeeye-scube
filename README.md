@@ -63,4 +63,4 @@ PointCloud2 : /cubeeye/scube/points
 ```bash
 $rosrun rqt_reconfigure rqt_reconfigure
 ```
-![dynamic_reconfigure](https://user-images.githubusercontent.com/18589471/131957404-7ea2305c-ea7e-477e-9bc3-15c1746ddb03.png)
+![dynamic_reconfigure](https://user-images.githubusercontent.com/90016619/131959624-b3ff03e2-2eb7-4cc6-bc5d-df39dc74ed89.png)
